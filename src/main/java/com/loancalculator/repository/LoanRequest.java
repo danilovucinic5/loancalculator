@@ -14,7 +14,7 @@ public class LoanRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ammount")
+    @Column(name = "amount")
     private double amount;
     @Column(name = "annual_interest_rate")
     private double annualInterestRate;

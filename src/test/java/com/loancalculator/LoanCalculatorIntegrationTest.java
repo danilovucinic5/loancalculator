@@ -248,4 +248,21 @@ class LoanCalculatorIntegrationTest {
                         .value("Amount must not exceed 1,000,000"));
     }
 
+    @Test
+    void testMultipleValidationErrors() throws Exception {
+        LoanRequestDTO invalidRequest = new LoanRequestDTO(-5000.0, -10.0, 0);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/loan/calculate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+
+        assert responseBody.contains("Amount must be greater than 0");
+        assert responseBody.contains("Interest rate cannot be negative");
+        assert responseBody.contains("Duration (months) must be at least 1");
+    }
+
 }

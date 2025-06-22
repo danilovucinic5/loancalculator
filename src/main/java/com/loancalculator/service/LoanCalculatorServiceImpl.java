@@ -33,12 +33,17 @@ public class LoanCalculatorServiceImpl implements LoanCalculatorService {
         BigDecimal monthlyRate = annualRate.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
                 .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
 
-        // Calculate monthly payment: P = A * r / (1 - (1 + r)^-n)
-        BigDecimal onePlusRatePow = BigDecimal.ONE.add(monthlyRate)
-                .pow(-months, new MathContext(20, RoundingMode.HALF_UP)); // (1 + r)^-n
-        BigDecimal monthlyPayment = loanAmount.multiply(monthlyRate)
-                .divide(BigDecimal.ONE.subtract(onePlusRatePow), 10, RoundingMode.HALF_UP);
-        monthlyPayment = monthlyPayment.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal monthlyPayment;
+        if (monthlyRate.compareTo(BigDecimal.ZERO) == 0) {
+            monthlyPayment = loanAmount.divide(BigDecimal.valueOf(months), 2, RoundingMode.HALF_UP);
+        } else {
+            // Calculate monthly payment: P = A * r / (1 - (1 + r)^-n)
+            BigDecimal onePlusRatePow = BigDecimal.ONE.add(monthlyRate)
+                    .pow(-months, new MathContext(20, RoundingMode.HALF_UP)); // (1 + r)^-n
+            monthlyPayment = loanAmount.multiply(monthlyRate)
+                    .divide(BigDecimal.ONE.subtract(onePlusRatePow), 10, RoundingMode.HALF_UP);
+            monthlyPayment = monthlyPayment.setScale(2, RoundingMode.HALF_UP);
+        }
 
         LoanRequest loanRequest = new LoanRequest(amount, annualInterestRate, months, LocalDateTime.now());
         List<Installment> installments = new ArrayList<>();

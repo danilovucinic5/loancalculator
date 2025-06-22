@@ -208,4 +208,32 @@ class LoanCalculatorBoundaryTest {
         assertEquals(840.28, last.getInterest(), 0.01);
         assertEquals(0.00, last.getRemainingBalance(), 0.01);
     }
+
+    @Test
+    void testZeroInterestRate() {
+        double amount = 1000;
+        double rate = 0;
+        int months = 5;
+
+        LoanResponseDTO response = service.calculateAndSaveLoan(amount, rate, months);
+        List<InstallmentDTO> installments = response.getInstallments();
+
+        assertEquals(5, installments.size(), "Should generate 5 installments");
+
+        // First installment
+        InstallmentDTO first = installments.get(0);
+        assertEquals(1, first.getMonth());
+        assertEquals(200, first.getMonthlyPayment(), 0.01);
+        assertEquals(200, first.getPrincipal(), 0.01);
+        assertEquals(0, first.getInterest(), 0.01);
+        assertEquals(800, first.getRemainingBalance(), 0.01);
+
+        // Last installment
+        InstallmentDTO last = installments.get(4);
+        assertEquals(5, last.getMonth());
+        assertEquals(200, last.getMonthlyPayment(), 0.01);
+        assertEquals(200, last.getPrincipal(), 0.01);
+        assertEquals(0, last.getInterest(), 0.01);
+        assertEquals(0, last.getRemainingBalance(), 0.01);
+    }
 }
